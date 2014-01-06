@@ -3,8 +3,7 @@ advancedfilter
 
 <p>Модуль для расширеной фильтрации элементов</p>
 <p>Установка:</p>
-<pre> 
-  cd site/bitrix/modules/ 
+<pre>  cd site/bitrix/modules/ 
   git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfilter 
 </pre>
  
@@ -14,31 +13,35 @@ advancedfilter
 <p>доступные методы:</p>
 <ul>
 
-  <li><p><b>Add(string $filter_name,[ array $config ]) - добавляет поле для фильтрации</b></p>
-    <p>$filter_name - произвольный код фильтра</p>
-    <p>$config - массив настроек, может содержать ключи:</p>
+  <li><p><b>Add(string $filter_name,[ array $config ]) - добавляет поле для фильтрации</b></p> 
+     <ul><li>
+        <p>$filter_name - произвольный код фильтра</p>
+    </li>
+     <li>
+     <p>$config - массив настроек содержит ключи:</p>
      
-       <p>'SOURCE' - тип источника для значений фильтра, может принимать следующие значения:</p> 
-          <ul>
-          <li><p>'1_LEVEL_SECTIONS' : разделы первого уровня</p></li>
-          <li><p>'2_LEVEL_SECTIONS' : разделы второго уровня</p></li>
-          <li><p>'3_LEVEL_SECTIONS' : разделы третьего уровня</p></li>
-           <li><p>'PROPERTY_КОД_СВОЙСТВА' : свойство с кодом КОД_СВОЙСТВА, вместо КОД_СВОЙСТВА может быть ИД свойства</p> 
-                                    <p>; свойство по умолчанию для SOURCE - т.е. если SOURCE не задан то SOURCE равен 
-                                      PROPERTY_filter_name </p>
-     </li>
-           <li><p>'RANGE' : 2 селекта для выбора диапазона чисел</p>
-                   <p> при этом обрабатываются следующие ключи:</p>
+       <p>'SOURCE' - тип источника для значений фильтра, от значения этого ключа пляшут остальные ключи.
+                     Значение этих других ключей описаны после описания каждого конкретного значения ключа SOURCE  </p>
+                     <p>По умолчанию равен PROPERTY_$filter_name</p>
+                    <p>может принимать следующие значения:</p> 
                     <ul>
-                      <li><p>'FROM' - диапазон от через знак минус; например 'FROM'=>'1995-2014'</p></li>
-                      <li><p>'TO' - диапазон до через знак минус; например 'TO'=>'1990-2014'</p></li>
+                    <li><p>'1_LEVEL_SECTIONS' : разделы первого уровня</p></li>
+                    <li><p>'N_LEVEL_SECTIONS' : разделы N -нного уровня (2_LEVEL_SECTIONS, 3_LEVEL_SECTIONS и т.д...) </p></li> 
+                     <li><p>'PROPERTY_КОД_СВОЙСТВА' : свойство с кодом КОД_СВОЙСТВА, вместо КОД_СВОЙСТВА может быть ИД свойства</p> 
+                                            
+                        </li>
+                     <li><p>'RANGE' : 2 селекта для выбора диапазона чисел</p>
+                             <p> при этом обрабатываются следующие ключи:</p>
+                              <ul>
+                                <li><p>'FROM' - диапазон от через знак минус; например 'FROM'=>'1995-2014'</p></li>
+                                <li><p>'TO' - диапазон до через знак минус; например 'TO'=>'1990-2014'</p></li>
+                              </ul>
+
+                              </li>
+
+                     <li>'TEXT_RANGE' : 2 инпута для ввода диапазона чисел  </li>
                     </ul>
-                    
-                    </li>
-                       
-           <li>'TEXT_RANGE' : 2 инпута для ввода диапазона чисел  </li>
-          </ul>
-          
+       </li></ul>
    </li>
    
   <li><b>GetResult() - получает результат для передачи в шаблон</b></li>
@@ -47,7 +50,7 @@ advancedfilter
    <ul>
           <li><p> $type - код фильтра</p></li>
      <li><p>$class - имя класса фильтра</p>
-     <p> класс должен наследоваться от абстрактного класса <a href='https://github.com/kudin/advancedfilter/blob/master/classes/kfiltertype.php'>kfiltertype</a>:</p>
+     <p> класс должен наследоваться от абстрактного класса <a href='https://github.com/kudin/bitrix-modules-advancedfilter/blob/master/classes/usertypes/kfiltertype.php'>kfiltertype</a>:</p>
       <pre>abstract class kfiltertype { 
           private $filter = false; 
           function validate(&$field){
@@ -65,7 +68,11 @@ advancedfilter
       }</pre></li></ul>
 </li>
 </ul>
-<p>пример использования:</p>
+
+
+<p>Класс поддерживает внутреннее CPHPCache тегированое кеширование</p>
+
+<p>Пример использования:</p>
 <pre>
     CModule::IncludeModule('advancedfilter'); 
     $filterData = new KFilter(CARS_IBLOCK_ID);

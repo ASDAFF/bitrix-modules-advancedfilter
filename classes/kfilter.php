@@ -12,7 +12,7 @@ class KFilter {
     private $objectsArr = array();
     
     private $obCache;
-    private static $cache_time = 36000;
+    private static $cache_time = 3600000; 
     private static $cache_dir = "/kfilter";
             
     function __construct($iblock_id) {
@@ -27,6 +27,10 @@ class KFilter {
             $this->props = $this->obCache->GetVars(); 
         } elseif($this->obCache->StartDataCache()) { 
             CModule::IncludeModule('iblock'); 
+            global $CACHE_MANAGER;
+            $CACHE_MANAGER->StartTagCache(self::$cache_dir);
+            $CACHE_MANAGER->RegisterTag("iblock_id_" . $this->iblock_id);
+            $CACHE_MANAGER->EndTagCache();
             $properties = CIBlockProperty::GetList(array("sort" => "asc", 
                                                          "name" => "asc"),
                                                    array("ACTIVE" => "Y",
@@ -39,7 +43,6 @@ class KFilter {
             }
             $this->obCache->EndDataCache($this->props);
         }
-
     }
 
     private function validateSourceField(&$field) {
@@ -54,7 +57,7 @@ class KFilter {
             $field['SOURCE'] = 'PROPERTY';
             return;
         } 
-        for($i = 1; $i <= 3; $i++) {
+        for($i = 1; $i <= 4; $i++) { 
             if($field['SOURCE'] == $i . '_LEVEL_SECTIONS'){
                 $field['SOURCE'] = 'SECTIONS';
                 $field['DEPTH_LEVEL'] = $i;
@@ -163,7 +166,7 @@ class KFilter {
                     case 'L':
                         $this->addPropertyEnumVariants($field);
                         break;
-                } 
+                }
                 break; 
             default:
                 if(is_object($this->objectsArr[$field['NAME']])){
@@ -180,5 +183,9 @@ class KFilter {
     function GetResult() { 
         return $this->fields; 
     }
-                    
+
+    function GetFilter(){
+ 
+    }
+
 }
