@@ -2,8 +2,8 @@
 
 abstract class kfiltertype {
  
-    private $filter = false;
- 
+    protected $filter = array();
+
     function validate(&$field){
            // первая проверка при добавлении поля  
     }    

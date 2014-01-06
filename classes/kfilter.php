@@ -8,9 +8,10 @@ class KFilter {
 
     private $filterTypes = array('RANGE'      => 'KFRangeType',         // выбор диапазона селектами
                                  'TEXT_RANGE' => 'KFTextRangeType');    // ввод диапазона цифрами
+                               
+    private $objectsArr = array(); 
+    private $filters = array();
 
-    private $objectsArr = array();
-    
     private $obCache;
     private static $cache_time = 3600000; 
     private static $cache_dir = "/kfilter";
@@ -113,6 +114,8 @@ class KFilter {
         foreach($field['VARIANTS'] as &$section){
            if($_REQUEST[$field['NAME']] == $section['ID']){
                $section['SELECTED'] = 'Y';
+               $this->filters[$field['NAME']]['SECTION_ID'] = $section['ID'];
+               break;
            }
         }
     } 
@@ -137,6 +140,8 @@ class KFilter {
         foreach ($field['VARIANTS'] as &$enum_variant) {
             if($_REQUEST[$field['PROPERTY']['CODE']] == $enum_variant['ID']) {
                 $enum_variant['SELECTED'] = 'Y';
+                $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $enum_variant['ID'];
+                break;
             }
         }
     }
@@ -185,7 +190,22 @@ class KFilter {
     }
 
     function GetFilter(){
- 
+        $filter = array('IBLOCK_ID' => $this->iblock_id);
+        foreach ($this->fields as $name => $field) {
+            switch ($field['SOURCE']) {
+                case 'SECTIONS':
+                case 'PROPERTY':
+                    $filters = $this->filters[$name];
+                    break; 
+                default:
+                    $filters = $this->objectsArr[$name]->getFilter(); 
+                    break;
+            } 
+            if($filters){
+                $filter = array_merge($filters, $filter);
+            }
+        }
+        return $filter;
     }
 
 }

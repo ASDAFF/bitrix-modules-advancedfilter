@@ -44,29 +44,30 @@ advancedfilter
        </li></ul>
    </li>
    
-  <li><b>GetResult() - получает результат для передачи в шаблон</b></li>
-<li>
-  <b>registerType($type, $class) - регистрирует пользовательский тип фильтра</b>
-   <ul>
-          <li><p> $type - код фильтра</p></li>
-     <li><p>$class - имя класса фильтра</p>
-     <p> класс должен наследоваться от абстрактного класса <a href='https://github.com/kudin/bitrix-modules-advancedfilter/blob/master/classes/usertypes/kfiltertype.php'>kfiltertype</a>:</p>
-      <pre>abstract class kfiltertype { 
-          private $filter = false; 
-          function validate(&$field){
-                 // первая проверка при добавлении поля  
-          }     
-          function addVariants(&$field){
-                 // метод должен добавить перечисляемые варианты в $field['VARIANTS']
-                 // выделить выбраные значения по массиву $_REQUEST
-                 // сформировать $this->filter
-          }    
-          function getFilter(){
-              return $this->filter;
-              // возвращает фильтр 
-          }
-      }</pre></li></ul>
-</li>
+  <li><b>GetResult() - возвращает результат для передачи в шаблон</b></li>
+  <li><b>GetFilter() - возвращает фильтр для CIblockElement::FetList-a для фильтрации элементов</b></li>
+    <li>
+      <b>registerType($type, $class) - регистрирует пользовательский тип фильтра</b>
+       <ul>
+              <li><p> $type - код фильтра</p></li>
+         <li><p>$class - имя класса фильтра</p>
+         <p> класс должен наследоваться от абстрактного класса <a href='https://github.com/kudin/bitrix-modules-advancedfilter/blob/master/classes/usertypes/kfiltertype.php'>kfiltertype</a>:</p>
+          <pre>abstract class kfiltertype { 
+              private $filter = false; 
+              function validate(&$field){
+                     // первая проверка при добавлении поля  
+              }     
+              function addVariants(&$field){
+                     // метод должен добавить перечисляемые варианты в $field['VARIANTS']
+                     // выделить выбраные значения по массиву $_REQUEST
+                     // сформировать $this->filter
+              }    
+              function getFilter(){
+                  return $this->filter;
+                  // возвращает фильтр 
+              }
+          }</pre></li></ul>
+    </li>
 </ul>
 
 

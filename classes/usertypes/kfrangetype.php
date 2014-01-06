@@ -12,7 +12,7 @@ class KFRangeType extends kfiltertype {
     function addVariants(&$field) {
         if($_REQUEST[$field['NAME'] . '_FROM'] > $_REQUEST[$field['NAME'] . '_TO'])
             $_REQUEST[$field['NAME'] . '_FROM'] = $_REQUEST[$field['NAME'] . '_TO'];
-        foreach (array('FROM', 'TO') as $key){ 
+        foreach (array('FROM', 'TO') as $key){
             if(!is_array($field[$key])){ 
                 $tmp = explode(self::$config['RANGE_SEPARATOR'], $field[$key]);
                 if(count($tmp) != 2)
@@ -22,10 +22,11 @@ class KFRangeType extends kfiltertype {
                 $field[$key]['END'] = $tmp[1]; 
             }  
             for ($i = $field[$key]['START']; $i <= $field[$key]['END']; $i++){                
-                $tmparr = array('ID' => $i, 'NAME' => $i);
+                $tmparr = array('ID' => $i, 
+                                'NAME' => $i );
                 if($_REQUEST[$field['NAME'] . '_' . $key] == $i){
                     $tmparr['SELECTED'] = 'Y';
-                    $this->filter[ (($key == 'FROM') ? '>' : '<') .'PROPERTY_' . $field['NAME'] ] = $i;
+                    $this->filter[ (($key == 'FROM') ? '>=' : '<=') .'PROPERTY_' . $field['NAME'] ] = $i;
                 }
                 $field['VARIANTS'][$key][] = $tmparr;
             } 
