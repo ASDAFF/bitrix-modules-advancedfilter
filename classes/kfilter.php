@@ -15,7 +15,9 @@ class KFilter {
     private $obCache;
     private static $cache_time = 3600000; 
     private static $cache_dir = "/kfilter";
-            
+
+    private static $config = array('MAX_SECTIONS_DEPTH_LEVEL' => 5); 
+
     function __construct($iblock_id) {
         if(!$iblock_id)
             return false;
@@ -32,8 +34,7 @@ class KFilter {
             $CACHE_MANAGER->StartTagCache(self::$cache_dir);
             $CACHE_MANAGER->RegisterTag("iblock_id_" . $this->iblock_id);
             $CACHE_MANAGER->EndTagCache();
-            $properties = CIBlockProperty::GetList(array("sort" => "asc", 
-                                                         "name" => "asc"),
+            $properties = CIBlockProperty::GetList(array("sort" => "asc"),
                                                    array("ACTIVE" => "Y",
                                                          "IBLOCK_ID" => $this->iblock_id));
             while ($prop_fields = $properties->GetNext()) {
@@ -41,7 +42,7 @@ class KFilter {
                                                            'NAME' => $prop_fields['NAME'],
                                                            'PROPERTY_TYPE' => $prop_fields['PROPERTY_TYPE'],
                                                            'CODE' => $prop_fields['CODE']);
-            }
+            } 
             $this->obCache->EndDataCache($this->props);
         }
     }
@@ -52,18 +53,32 @@ class KFilter {
             $field['SOURCE'] = 'PROPERTY';
             $field['PROPERTY'] = $field['NAME'];
             return;
-        }
+        } 
         if (strpos($field['SOURCE'], 'PROPERTY_') === 0) {
             $field['PROPERTY'] = substr($field['SOURCE'], strlen('PROPERTY_'), strlen($field['SOURCE']));
             $field['SOURCE'] = 'PROPERTY';
             return;
         } 
-        for($i = 1; $i <= 4; $i++) { 
+        for($i = 1; $i <= self::$config['MAX_SECTIONS_DEPTH_LEVEL']; $i++) { 
             if($field['SOURCE'] == $i . '_LEVEL_SECTIONS'){
                 $field['SOURCE'] = 'SECTIONS';
                 $field['DEPTH_LEVEL'] = $i;
                 return;
             }
+        }  
+        if (strrpos($field['SOURCE'], 'HIBLOCK_') === 0) { 
+            $num = substr($field['SOURCE'], strlen('HIBLOCK_'));
+            if($num){
+                $field['SOURCE'] = 'HIBLOCK';
+                $field['ID'] = $num;
+                if(!$field['PROPERTY']){
+                    $field['PROPERTY'] = $field['NAME'];
+                }
+                if(!$field['NAME_FIELD']){
+                    $field['NAME_FIELD'] = 'UF_NAME';
+                }
+            }
+            return;
         }
         if(is_object($this->objectsArr[$field['NAME']])){ 
             $this->objectsArr[$field['NAME']]->validate($field);
@@ -77,19 +92,17 @@ class KFilter {
         
         $arr['NAME'] = $name;
 
-        if (!$arr['VIEW'])
-            $arr['VIEW'] = 'VARIANTS';
-
+        $this->validateSourceField($arr);
+        
         if($this->filterTypes[$arr['SOURCE']])
             $this->objectsArr[$arr['NAME']] = new $this->filterTypes[$arr['SOURCE']]();
- 
-        $this->validateSourceField($arr);
+
         $this->addVariants($arr);
         $this->fields[$arr['NAME']] = $arr;
         return $this;
     }
             
-    private function addSectionVariants(&$field){ 
+    private function addSectionVariants(&$field){
         if($this->obCache->InitCache(self::$cache_time, 
                                      md5($this->iblock_id . __METHOD__ . $field['DEPTH_LEVEL']),
                                      self::$cache_dir)) {
@@ -99,13 +112,12 @@ class KFilter {
             if($field['DEPTH_LEVEL'] > 1){
                 $arSelect[] = 'IBLOCK_SECTION_ID';
             }
-            $db_list = CIBlockSection::GetList(array("SORT" => "ASC", 
-                                                    "NAME" => "ASC"), 
-                                              array('IBLOCK_ID' => $this->iblock_id,
-                                                    'ACTIVE' => 'Y', 
-                                                    'DEPTH_LEVEL' => $field['DEPTH_LEVEL']),
-                                              false,
-                                              $arSelect);  
+            $db_list = CIBlockSection::GetList(array("SORT" => "ASC", "NAME" => "ASC"), 
+                                               array('IBLOCK_ID' => $this->iblock_id,
+                                                     'ACTIVE' => 'Y', 
+                                                     'DEPTH_LEVEL' => $field['DEPTH_LEVEL']),
+                                               false,
+                                               $arSelect);  
            while($section = $db_list->Fetch()) {
                $field['VARIANTS'][] = $section;
            }
@@ -127,8 +139,7 @@ class KFilter {
             $field['VARIANTS'] = $this->obCache->GetVars(); 
         } elseif($this->obCache->StartDataCache()) { 
             $db_enums = CIBlockProperty::GetPropertyEnum($field['PROPERTY']['ID'],
-                                                         array("SORT" => "asc",
-                                                               "VALUE" => "asc"),
+                                                         array("SORT" => "asc", "VALUE" => "asc"),
                                                          array("IBLOCK_ID" => $this->iblock_id));
             while ($ar_enum_list = $db_enums->GetNext()) {
                 $enum_variant = array('ID' => $ar_enum_list['ID'],
@@ -160,6 +171,36 @@ class KFilter {
         }  
     }
     
+    private function addHIblockVariants(&$field) { 
+        if($this->obCache->InitCache(self::$cache_time, 
+                                     md5($this->iblock_id . __METHOD__ . $field['ID']),
+                                     self::$cache_dir)) {
+            $field['VARIANTS'] = $this->obCache->GetVars(); 
+        } elseif($this->obCache->StartDataCache()) {
+            CModule::IncludeModule('highloadblock'); 
+            $hlblock = Bitrix\Highloadblock\HighloadBlockTable::getList(array("filter" => array('ID' => $field['ID'])))->fetch();
+            if (isset($hlblock['ID'])) {
+                $result = array();
+                $entity = Bitrix\Highloadblock\HighloadBlockTable::compileEntity($hlblock);
+                $entity_data_class = $entity->getDataClass();
+                $rsData = $entity_data_class::getList(array());
+                while ($arData = $rsData->fetch()) { 
+                    $result[] = array('ID' => $arData['UF_XML_ID'], 
+                                      'NAME' => $arData[$field['NAME_FIELD']]);
+                }
+                $field['VARIANTS'] = $result; 
+            }   
+            $this->obCache->EndDataCache($field['VARIANTS']);
+        }
+        foreach($field['VARIANTS'] as &$variant){
+           if($_REQUEST[$field['NAME']] == $variant['ID']){
+               $variant['SELECTED'] = 'Y';
+               $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']] = $variant['ID'];
+               break;
+           }
+        }
+    }
+    
     private function addVariants(&$field){ 
         switch ($field['SOURCE']) {
             case 'SECTIONS': 
@@ -173,6 +214,9 @@ class KFilter {
                         break;
                 }
                 break; 
+            case 'HIBLOCK':
+                $this->addHIblockVariants($field);
+                break;
             default:
                 if(is_object($this->objectsArr[$field['NAME']])){
                     $this->objectsArr[$field['NAME']]->addVariants($field);
@@ -195,6 +239,7 @@ class KFilter {
             switch ($field['SOURCE']) {
                 case 'SECTIONS':
                 case 'PROPERTY':
+                case 'HIBLOCK':
                     $filters = $this->filters[$name];
                     break; 
                 default:
