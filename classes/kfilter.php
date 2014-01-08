@@ -39,7 +39,7 @@ class KFilter {
                                                          "IBLOCK_ID" => $this->iblock_id));
             while ($prop_fields = $properties->GetNext()) {
                 $this->props[$prop_fields["CODE"]] = array('ID' => $prop_fields['ID'],
-                                                           'NAME' => $prop_fields['NAME'],
+                                                           'PROPERTY_NAME' => $prop_fields['NAME'],
                                                            'PROPERTY_TYPE' => $prop_fields['PROPERTY_TYPE'],
                                                            'CODE' => $prop_fields['CODE']);
             } 
@@ -149,12 +149,12 @@ class KFilter {
             $this->obCache->EndDataCache($field['VARIANTS']);
         }
         foreach ($field['VARIANTS'] as &$enum_variant) {
-            if($_REQUEST[$field['PROPERTY']['CODE']] == $enum_variant['ID']) {
+            if($_REQUEST[$field['NAME']] == $enum_variant['ID']) {
                 $enum_variant['SELECTED'] = 'Y';
                 $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $enum_variant['ID'];
                 break;
             }
-        }
+        } 
     }
 
     private function attachPropertyArrToField(&$field){
