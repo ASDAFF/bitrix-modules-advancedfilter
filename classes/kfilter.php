@@ -13,8 +13,9 @@ class KFilter {
                                    'HIBLOCK_DEFAULT_NAME_FIELD' => 'UF_NAME', 
                                    'HIBLOCK_DEFAULT_ID_FIELD'   => 'UF_XML_ID'); 
 
-    private $filterTypes = array(  'RANGE'          => 'KFRangeType',    
-                                   'TEXT_RANGE'     => 'KFTextRangeType'); 
+    private $filterTypes = array(  'RANGE'           => 'KFRangeType',    
+                                   'TEXT_RANGE'      => 'KFTextRangeType',
+                                   'SETTED_PROPERTY' => 'KFSettedProperty'); 
         
     private $objectsArr = array(); 
     private $filters = array();
@@ -146,7 +147,7 @@ class KFilter {
                 $enum_variant['SELECTED'] = 'Y';
                 $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $enum_variant['ID'];
                 break;
-            }
+            } 
         } 
     }
 
@@ -193,7 +194,7 @@ class KFilter {
         foreach($field['VARIANTS'] as &$variant){
            if($_REQUEST[$field['NAME']] == $variant['ID']){
                $variant['SELECTED'] = 'Y';
-               $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']] = $variant['ID'];
+               $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $variant['ID'];
                break;
            }
         }

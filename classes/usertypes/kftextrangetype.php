@@ -22,8 +22,8 @@ class KFTextRangeType extends kfiltertype {
             foreach (array('FROM' => '>=', 'TO' => '<=') as $key => $znak) { 
                 if($_REQUEST[$field['NAME'] . '_' . $key]){
                     $field['VALUE'][$key] = $_REQUEST[$field['NAME'] . '_' . $key]; 
-                    $this->filter[$znak . 'PROPERTY_' . $field['NAME']] = $_REQUEST[$field['NAME'] . '_' . $key]; 
-                }
+                    $this->filter[$znak . 'PROPERTY_' . $field['PROPERTY']] = $_REQUEST[$field['NAME'] . '_' . $key]; 
+                } 
             } 
         }  
     }
