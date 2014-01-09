@@ -22,34 +22,46 @@ advancedfilter
      
        <p>'SOURCE' - тип источника для значений фильтра, от значения этого ключа пляшут остальные ключи.
                      Значение этих других ключей описаны после описания каждого конкретного значения ключа SOURCE  </p>
-                     <p>По умолчанию равен PROPERTY_$filter_name</p>
+                     <p>По умолчанию устанавливается в зависимости от текущих настроек свойств инфоблока</p>
                     <p>может принимать следующие значения:</p> 
                     <ul>
                     <li><p>'1_LEVEL_SECTIONS' : разделы первого уровня</p></li>
                     <li><p>'N_LEVEL_SECTIONS' : разделы N -нного уровня (2_LEVEL_SECTIONS, 3_LEVEL_SECTIONS и т.д...) </p></li> 
-                    <li><p>'PROPERTY_КОД_СВОЙСТВА' : свойство с кодом КОД_СВОЙСТВА, вместо КОД_СВОЙСТВА может быть ИД свойства</p></li>
+                    <li><p>'PROPERTY' : свойство, при этом допустимы следующие поля:</p>
+                          <ul>
+                              <li><p>PROPERTY - код свойства для привязки, если он отличим от $filter_name</p></li>
+                           </ul>
+                    </li>
                     <li><p>'RANGE' : 2 селекта для выбора диапазона чисел</p>
                              <p> при этом обрабатываются следующие ключи:</p>
                               <ul>
                                 <li><p>'FROM' - диапазон от через знак минус; например 'FROM'=>'1995-2014'</p></li>
                                 <li><p>'TO' - диапазон до через знак минус; например 'TO'=>'1990-2014'</p></li>
                               </ul>
-                    </li>
-                     <li><P>'HIBLOCK_ИД' : привязка к highloadblock по его ИД, при этом допустимы следующие поля:</P>
-                           <ul>
-                              <li><p>PROPERTY - код свойства для привязки, если он отличим от $filter_name</p></li>
+                    </li> 
+                     <li>'TEXT_RANGE' : 2 инпута для ввода диапазона чисел  </li>
+                    </ul> 
+ <P>Когда свойство является справочником Highloadblock допустимы следующие поля:</P>
+                           <ul> 
                               <li><p>NAME_FIELD - код поля таблицы для значений вариантов, по умолчанию UF_NAME</p></li>
+                              <li><p>ID_FIELD - ид на случай если нужно использовать поле отличное от UF_XML_ID, по умолчанию UF_XML_ID</p></li> 
                           </ul>
                      </li>
-                     <li>'TEXT_RANGE' : 2 инпута для ввода диапазона чисел  </li>
-                    </ul>
+
+
        </li></ul>
    </li>
    
-  <li><b>GetResult() - возвращает результат для передачи в шаблон</b></li>
-  <li><b>GetFilter() - возвращает фильтр для CIblockElement::FetList-a для фильтрации элементов</b></li>
+  <li><p><b>GetResult() - возвращает результат для передачи в шаблон</b></p></li>
+        <li><p><b>clearCache() - чистит весь внутренний кеш компонента</b></p>
+         <p>статический метод</p>
+         <p>Можно использовать когда тегированый кеш инфоблоков не валит кеш (например при обновлении значений свойств через api)</p>
+         <p>Пример использования: <pre>KFilter::clearCache()</pre></p>
+
+     </li>
+  <li><p><b>GetFilter() - возвращает фильтр для CIblockElement::FetList-a для фильтрации элементов</b></p></li>
     <li>
-      <b>registerType($type, $class) - регистрирует пользовательский тип фильтра</b>
+      <p><b>registerType($type, $class) - регистрирует пользовательский тип фильтра</b></p>
        <ul>
               <li><p> $type - код фильтра</p></li>
          <li><p>$class - имя класса фильтра</p>
@@ -79,17 +91,17 @@ advancedfilter
 <pre>
     CModule::IncludeModule('advancedfilter'); 
     $filterData = new KFilter(CARS_IBLOCK_ID);
-    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS') )
-               ->Add('YEAR',    array('SOURCE' => 'RANGE', 'FROM'=>'1980-2014', 'TO'=>'1990-2014' )  )
-               ->Add('PRICE',   array('VIEW'   => 'INPUT'))
-               ->Add('KPP'  )
+    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'))
+               ->Add('YEAR',    array('SOURCE' => 'RANGE', 'FROM'=>'1980-' . date('Y'), 'TO'=>'1980-' . date('Y')) )
+               ->Add('PRICE',   array('SOURCE' => 'TEXT_RANGE'))
+               ->Add('KPP')
                ->Add('MODEL',   array('SOURCE' => '2_LEVEL_SECTIONS', 'LINKTO' => 'MARKA'))
-               ->Add('KUZOV' )
-               ->Add('PROBEG',  array('VIEW'   => 'INPUT'))
+               ->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'))
+               ->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'))
                ->Add('DVIGATEL')
                ->Add('GOROD')
-               ->Add('PRIVOD'); 
-              
+               ->Add('PRIVOD',  array('PROPERTY'=> 'TIP_PRIVODA')); 
+            
    $arResult['FILTERS'] = $filterData->GetResult();
 </pre>   
   

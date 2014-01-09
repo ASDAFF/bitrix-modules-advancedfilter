@@ -1,5 +1,9 @@
 <?php
  
+/*  Фильтр для выбора среди указанного диапазона чисел
+ *  Визуально представляет из себя 2 выпадающих селекта ОТ и ДО
+ *  kudinsasha@gmail.com    */
+ 
 class KFRangeType extends kfiltertype {
     
     private static $config = array('RANGE_SEPARATOR' => '-');
@@ -19,8 +23,8 @@ class KFRangeType extends kfiltertype {
                     return;
                 $field[$key] = array();
                 $field[$key]['START'] = $tmp[0];
-                $field[$key]['END'] = $tmp[1]; 
-            }  
+                $field[$key]['END'] = $tmp[1];  
+            }
             for ($i = $field[$key]['START']; $i <= $field[$key]['END']; $i++){                
                 $tmparr = array('ID' => $i, 
                                 'NAME' => $i );

@@ -1,4 +1,8 @@
 <?php
+  
+/*  Фильтрация по диапазону значений
+ *  2 текстовых поля ОТ и ДО
+ *  kudinsasha@gmail.com    */
  
 class KFTextRangeType extends kfiltertype {
  
