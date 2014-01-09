@@ -11,5 +11,7 @@ if(!CModule::IncludeModule('advancedfilter'))
 $filterData = new KFilter($arParams['IBLOCK_ID']);
 
 $arResult['FILTERS'] = $filterData->GetResult();
- 
-$this->IncludeComponentTemplate(); 
+
+$this->IncludeComponentTemplate();
+
+return $filterData->GetFilter(); 

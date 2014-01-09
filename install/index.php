@@ -26,12 +26,12 @@ class advancedfilter extends CModule {
         $this->MODULE_DESCRIPTION = 'Модуль предназначен для расширеной настройки филтьрации элементов на сайте';
     }
 
-    function DoInstall() {
+    function DoInstall() { 
         RegisterModule($this->MODULE_ID);
     }
 
-    function DoUninstall() {
+    function DoUninstall() {  
         UnRegisterModule($this->MODULE_ID);
-    }
+    } 
 
 } 
