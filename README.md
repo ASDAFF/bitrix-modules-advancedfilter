@@ -27,8 +27,8 @@ git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfil
                     <ul>
                     <li><p>'1_LEVEL_SECTIONS' ... '5_LEVEL_SECTIONS' : разделы выбранного уровня</p>
                     <p>Пример:</p>
-                    <pre>$filterData = new KFilter($iblock_id);
-                    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'));</pre>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'));</pre>
                     </li>
                      
                     <li><p>'PROPERTY' : свойство, при этом допустимы следующие поля:</p>
@@ -36,17 +36,17 @@ git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfil
                               <li><p>PROPERTY - код свойства для привязки, если он отличим от $filter_name</p></li>
                            </ul>
                     <p>Добавляем свойство KUZOV</p>
-                    <pre>$filterData = new KFilter($iblock_id);
-                    $filterData->Add('KUZOV');</pre>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('KUZOV');</pre>
                     <p>Добавляем свойство KUZOV, но у нас оно будет называться TIP_KUZOVA</p>
-                    <pre>$filterData = new KFilter($iblock_id);
-                    $filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
                 <p>Ещё пример:</p>
 <pre>$filterData = new KFilter($iblock_id);
 $filterData->Add('KUZOV')
-            ->Add('MARKA') 
-            ->Add('YEAR' , array('PROPERTY' => 'GOD'))
-            ->Add('MODEL');
+           ->Add('MARKA') 
+           ->Add('YEAR' , array('PROPERTY' => 'GOD'))
+           ->Add('MODEL');
 </pre>
                     </li>
                     <li><p>'RANGE' : 2 селекта для выбора диапазона чисел</p>
@@ -75,21 +75,20 @@ $filterData->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'));</pre>
  
        </li></ul>
 <p>Пример использования:</p>
-<pre>
-    CModule::IncludeModule('advancedfilter'); 
-    $filterData = new KFilter(CARS_IBLOCK_ID);
-    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'))
-               ->Add('YEAR',    array('SOURCE' => 'RANGE', 'FROM'=>'1980-' . date('Y'), 'TO'=>'1980-' . date('Y')) )
-               ->Add('PRICE',   array('SOURCE' => 'TEXT_RANGE'))
-               ->Add('KPP')
-               ->Add('MODEL',   array('SOURCE' => '2_LEVEL_SECTIONS', 'LINKTO' => 'MARKA'))
-               ->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'))
-               ->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'))
-               ->Add('DVIGATEL')
-               ->Add('GOROD')
-               ->Add('PRIVOD',  array('PROPERTY'=> 'TIP_PRIVODA')); 
-            
-   $arResult['FILTERS'] = $filterData->GetResult();
+<pre>CModule::IncludeModule('advancedfilter'); 
+$filterData = new KFilter(CARS_IBLOCK_ID);
+$filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'))
+           ->Add('YEAR',    array('SOURCE' => 'RANGE', 'FROM'=>'1980-' . date('Y'), 'TO'=>'1980-' . date('Y')) )
+           ->Add('PRICE',   array('SOURCE' => 'TEXT_RANGE'))
+           ->Add('KPP')
+           ->Add('MODEL',   array('SOURCE' => '2_LEVEL_SECTIONS', 'LINKTO' => 'MARKA'))
+           ->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'))
+           ->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'))
+           ->Add('DVIGATEL')
+           ->Add('GOROD')
+           ->Add('PRIVOD',  array('PROPERTY'=> 'TIP_PRIVODA')); 
+
+$arResult['FILTERS'] = $filterData->GetResult();
 </pre>   
    </li>
    
@@ -107,21 +106,22 @@ $filterData->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'));</pre>
               <li><p> $type - код фильтра</p></li>
          <li><p>$class - имя класса фильтра</p>
          <p> класс должен наследоваться от абстрактного класса <a href='https://github.com/kudin/bitrix-modules-advancedfilter/blob/master/classes/usertypes/kfiltertype.php'>kfiltertype</a>:</p>
-          <pre>abstract class kfiltertype { 
-              private $filter = false; 
-              function validate(&$field){
-                     // первая проверка при добавлении поля  
-              }     
-              function addVariants(&$field){
-                     // метод должен добавить перечисляемые варианты в $field['VARIANTS']
-                     // выделить выбраные значения по массиву $_REQUEST
-                     // сформировать $this->filter
-              }    
-              function getFilter(){
-                  return $this->filter;
-                  // возвращает фильтр 
-              }
-          }</pre></li></ul>
+<pre>abstract class kfiltertype { 
+  private $filter = false; 
+  function validate(&$field){
+     // первая проверка при добавлении поля  
+  }     
+  function addVariants(&$field){
+     // метод должен добавить перечисляемые варианты в $field['VARIANTS']
+     // выделить выбраные значения по массиву $_REQUEST
+     // сформировать $this->filter
+  }    
+  function getFilter(){
+      return $this->filter;
+      // возвращает фильтр 
+  }
+}</pre>
+</li></ul>
     </li>
 </ul>
 
