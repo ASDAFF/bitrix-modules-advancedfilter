@@ -26,20 +26,28 @@ git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfil
                     <p>может принимать следующие значения:</p> 
                     <ul>
                     <li><p>'1_LEVEL_SECTIONS' ... '5_LEVEL_SECTIONS' : разделы выбранного уровня</p>
-<pre>$filterData = new KFilter($iblock_id);
-$filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'));</pre>
-</li>
+                    <p>Пример:</p>
+                    <pre>$filterData = new KFilter($iblock_id);
+                    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'));</pre>
+                    </li>
                      
                     <li><p>'PROPERTY' : свойство, при этом допустимы следующие поля:</p>
                           <ul>
                               <li><p>PROPERTY - код свойства для привязки, если он отличим от $filter_name</p></li>
                            </ul>
-<p>Добавляем свойство KUZOV</p>
+                    <p>Добавляем свойство KUZOV</p>
+                    <pre>$filterData = new KFilter($iblock_id);
+                    $filterData->Add('KUZOV');</pre>
+                    <p>Добавляем свойство KUZOV, но у нас оно будет называться TIP_KUZOVA</p>
+                    <pre>$filterData = new KFilter($iblock_id);
+                    $filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
+                <p>Ещё пример:</p>
 <pre>$filterData = new KFilter($iblock_id);
-$filterData->Add('KUZOV');</pre>
-<p>Добавляем свойство KUZOV, но у нас оно будет называться TIP_KUZOVA</p>
-<pre>$filterData = new KFilter($iblock_id);
-$filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
+$filterData->Add('KUZOV')
+            ->Add('MARKA') 
+            ->Add('YEAR' , array('PROPERTY' => 'GOD'))
+            ->Add('MODEL');
+</pre>
                     </li>
                     <li><p>'RANGE' : 2 селекта для выбора диапазона чисел</p>
                              <p> при этом обрабатываются следующие ключи:</p>
@@ -47,8 +55,16 @@ $filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
                                 <li><p>'FROM' - диапазон от через знак минус; например 'FROM'=>'1995-2014'</p></li>
                                 <li><p>'TO' - диапазон до через знак минус; например 'TO'=>'1990-2014'</p></li>
                               </ul>
+<p>Пример:</p>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('YEAR',   array('SOURCE' => 'RANGE', 'FROM'=>'1980-2000' , 'TO'=>'1980-' . date('Y')) );
+</pre>
                     </li> 
-                     <li>'TEXT_RANGE' : 2 инпута для ввода диапазона чисел  </li>
+                     <li><P>'TEXT_RANGE' : 2 инпута для ввода диапазона чисел </P> 
+<p>Пример:</p>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'));</pre>
+</li>
                     </ul> 
  <P>Когда свойство является справочником Highloadblock допустимы следующие поля:</P>
                            <ul> 
@@ -56,9 +72,25 @@ $filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
                               <li><p>ID_FIELD - ид на случай если нужно использовать поле отличное от UF_XML_ID, по умолчанию UF_XML_ID</p></li> 
                           </ul>
                      </li>
-
-
+ 
        </li></ul>
+<p>Пример использования:</p>
+<pre>
+    CModule::IncludeModule('advancedfilter'); 
+    $filterData = new KFilter(CARS_IBLOCK_ID);
+    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'))
+               ->Add('YEAR',    array('SOURCE' => 'RANGE', 'FROM'=>'1980-' . date('Y'), 'TO'=>'1980-' . date('Y')) )
+               ->Add('PRICE',   array('SOURCE' => 'TEXT_RANGE'))
+               ->Add('KPP')
+               ->Add('MODEL',   array('SOURCE' => '2_LEVEL_SECTIONS', 'LINKTO' => 'MARKA'))
+               ->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'))
+               ->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'))
+               ->Add('DVIGATEL')
+               ->Add('GOROD')
+               ->Add('PRIVOD',  array('PROPERTY'=> 'TIP_PRIVODA')); 
+            
+   $arResult['FILTERS'] = $filterData->GetResult();
+</pre>   
    </li>
    
   <li><p><b>GetResult() - возвращает результат для передачи в шаблон</b></p></li>
@@ -95,23 +127,5 @@ $filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
 
 
 <p>Класс поддерживает внутреннее CPHPCache тегированое кеширование</p>
-
-<p>Пример использования:</p>
-<pre>
-    CModule::IncludeModule('advancedfilter'); 
-    $filterData = new KFilter(CARS_IBLOCK_ID);
-    $filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'))
-               ->Add('YEAR',    array('SOURCE' => 'RANGE', 'FROM'=>'1980-' . date('Y'), 'TO'=>'1980-' . date('Y')) )
-               ->Add('PRICE',   array('SOURCE' => 'TEXT_RANGE'))
-               ->Add('KPP')
-               ->Add('MODEL',   array('SOURCE' => '2_LEVEL_SECTIONS', 'LINKTO' => 'MARKA'))
-               ->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'))
-               ->Add('PROBEG',  array('SOURCE' => 'TEXT_RANGE'))
-               ->Add('DVIGATEL')
-               ->Add('GOROD')
-               ->Add('PRIVOD',  array('PROPERTY'=> 'TIP_PRIVODA')); 
-            
-   $arResult['FILTERS'] = $filterData->GetResult();
-</pre>   
-  
-   
+ 
+==== 
