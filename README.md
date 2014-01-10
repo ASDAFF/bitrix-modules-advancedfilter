@@ -3,8 +3,8 @@ advancedfilter
 
 <p>Модуль для расширеной фильтрации элементов</p>
 <p>Установка:</p>
-<pre>  cd site/bitrix/modules/ 
-  git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfilter 
+<pre>cd site/bitrix/modules/ 
+git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfilter 
 </pre>
  
 ==== 
@@ -25,12 +25,21 @@ advancedfilter
                      <p>По умолчанию устанавливается в зависимости от текущих настроек свойств инфоблока</p>
                     <p>может принимать следующие значения:</p> 
                     <ul>
-                    <li><p>'1_LEVEL_SECTIONS' : разделы первого уровня</p></li>
-                    <li><p>'N_LEVEL_SECTIONS' : разделы N -нного уровня (2_LEVEL_SECTIONS, 3_LEVEL_SECTIONS и т.д...) </p></li> 
+                    <li><p>'1_LEVEL_SECTIONS' ... '5_LEVEL_SECTIONS' : разделы выбранного уровня</p>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('MARKA',   array('SOURCE' => '1_LEVEL_SECTIONS'));</pre>
+</li>
+                     
                     <li><p>'PROPERTY' : свойство, при этом допустимы следующие поля:</p>
                           <ul>
                               <li><p>PROPERTY - код свойства для привязки, если он отличим от $filter_name</p></li>
                            </ul>
+<p>Добавляем свойство KUZOV</p>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('KUZOV');</pre>
+<p>Добавляем свойство KUZOV, но у нас оно будет называться TIP_KUZOVA</p>
+<pre>$filterData = new KFilter($iblock_id);
+$filterData->Add('TIP_KUZOVA',   array('PROPERTY' => 'KUZOV'));</pre>
                     </li>
                     <li><p>'RANGE' : 2 селекта для выбора диапазона чисел</p>
                              <p> при этом обрабатываются следующие ключи:</p>
