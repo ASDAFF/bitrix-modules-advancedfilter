@@ -65,34 +65,37 @@ class KFilter {
     private function validateSourceField(&$field) {
         $field['SOURCE'] = trim(strtoupper($field['SOURCE']));
         $field['PROPERTY'] = $field['PROPERTY'] ? $field['PROPERTY'] : $field['NAME']; 
-        if (!$field['SOURCE']) { 
-            $field['SOURCE'] = 'PROPERTY';
-            return;
-        } 
-        for($i = 1; $i <= self::$config['MAX_SECTIONS_DEPTH_LEVEL']; $i++) { 
-            if($field['SOURCE'] == $i . '_LEVEL_SECTIONS'){
-                $field['SOURCE'] = 'SECTIONS';
-                $field['DEPTH_LEVEL'] = $i;
-                return;
-            }
-        } 
-        if(is_object($this->objectsArr[$field['NAME']])) { 
-            $this->objectsArr[$field['NAME']]->validate($field);
+        if (!$field['SOURCE']) {
+            if(isset($this->props[$field['PROPERTY']])){
+                $field['SOURCE'] = 'PROPERTY';
+                return true;                
+            } 
+        } elseif($field['SOURCE'] == 'PROPERTY' && !isset($this->props[$field['PROPERTY']])){
+            return false;
         }
+        for($i = 1; $i <= self::$config['MAX_SECTIONS_DEPTH_LEVEL']; $i++) { 
+            if($field['SOURCE'] == $i . '_LEVEL_SECTIONS') {
+                $field['SOURCE'] = 'SECTIONS'; 
+                $field['DEPTH_LEVEL'] = $i; 
+                return true; 
+            }
+        }
+        if($this->filterTypes[$field['SOURCE']]) {
+            $this->objectsArr[$field['NAME']] = new $this->filterTypes[$field['SOURCE']]($this->iblock_id);
+            $this->objectsArr[$field['NAME']]->validate($field);
+            return true;
+        } 
+        return false;
     }
 
-    function Add($name, $arr) {
-        $name = trim($name);
-        if (!$name){
-            return $this; 
+    function Add($name, $arr) { 
+        if ($name = trim($name)) { 
+            $arr['NAME'] = $name; 
+            if($this->validateSourceField($arr)){
+                $this->addVariants($arr);
+                $this->fields[$arr['NAME']] = $arr;
+            }
         }
-        $arr['NAME'] = $name;
-        $this->validateSourceField($arr);
-        if($this->filterTypes[$arr['SOURCE']]){
-            $this->objectsArr[$arr['NAME']] = new $this->filterTypes[$arr['SOURCE']]();
-        }
-        $this->addVariants($arr);
-        $this->fields[$arr['NAME']] = $arr;
         return $this;
     }
             
@@ -106,7 +109,7 @@ class KFilter {
             if($field['DEPTH_LEVEL'] > 1){
                 $arSelect[] = 'IBLOCK_SECTION_ID';
             }
-            $db_list = CIBlockSection::GetList(array("SORT" => "ASC", "NAME" => "ASC"), 
+            $db_list = CIBlockSection::GetList(array('SECTION'=> "ASC", "SORT" => "ASC", "NAME" => "ASC"), 
                                                array('IBLOCK_ID' => $this->iblock_id,
                                                      'ACTIVE' => 'Y', 
                                                      'DEPTH_LEVEL' => $field['DEPTH_LEVEL']),
@@ -117,7 +120,7 @@ class KFilter {
            }
            $this->obCache->EndDataCache($field['VARIANTS']);
         }
-        foreach($field['VARIANTS'] as &$section){
+        foreach($field['VARIANTS'] as &$section) {
            if($_REQUEST[$field['NAME']] == $section['ID']){
                $section['SELECTED'] = 'Y';
                $this->filters[$field['NAME']]['SECTION_ID'] = $section['ID'];
@@ -200,7 +203,7 @@ class KFilter {
         }
     }
     
-    private function addVariants(&$field) { 
+    private function addVariants(&$field) {
         switch ($field['SOURCE']) {
             case 'SECTIONS': 
                 $this->addSectionVariants($field);

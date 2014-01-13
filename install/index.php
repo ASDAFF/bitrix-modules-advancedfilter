@@ -26,7 +26,20 @@ class advancedfilter extends CModule {
         $this->MODULE_DESCRIPTION = 'Модуль предназначен для расширеной настройки филтьрации элементов на сайте';
     }
 
+    function InstallFiles() {
+        CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $this->MODULE_ID . "/install/admin/",
+                     $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
+        CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $this->MODULE_ID . "/install/themes/", 
+                     $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+        return true;		
+    }
+
+    function UnInstallFiles() {	
+        return true;
+    }
+
     function DoInstall() { 
+        $this->InstallFiles(); 
         RegisterModule($this->MODULE_ID);
     }
 

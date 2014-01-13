@@ -1,20 +1,13 @@
 <?php
  
 /*  Фильтр для выбора среди указанного диапазона чисел
- *  Визуально представляет из себя 2 выпадающих селекта ОТ и ДО
- *  kudinsasha@gmail.com    */
+ *  Визуально представляет из себя 2 выпадающих селекта ОТ и ДО */
  
 class KFRangeType extends kfiltertyperange {
     
     private static $config = array('RANGE_SEPARATOR' => '-');
 
-    function validate(&$field){
-        if(!$field['TO'])
-            $field['TO'] = $field['FROM'];
-    }
-    
-    function addVariants(&$field) { 
-        $this->validateToInt($field); 
+    function addVariants(&$field) {  
         if($_REQUEST[$field['NAME'] . '_FROM'] || $_REQUEST[$field['NAME'] . '_TO']) {
             $this->checkToFromWasLess($field); 
             if($_REQUEST[$field['NAME'] . '_FROM'] == $_REQUEST[$field['NAME'] . '_TO']) { 
@@ -23,7 +16,7 @@ class KFRangeType extends kfiltertyperange {
             } 
         }
         foreach (array('FROM', 'TO') as $key) {
-            if(!is_array($field[$key])){ 
+            if(!is_array($field[$key])) {
                 $tmp = explode(self::$config['RANGE_SEPARATOR'], $field[$key]);
                 if(count($tmp) != 2)
                     return;
@@ -36,7 +29,7 @@ class KFRangeType extends kfiltertyperange {
                                 'NAME' => $i );
                 if($_REQUEST[$field['NAME'] . '_' . $key] == $i){
                     $tmparr['SELECTED'] = 'Y';
-                    if(!$this->filter['PROPERTY_' . $field['NAME']]){
+                    if(!$this->filter['PROPERTY_' . $field['NAME']]) {
                         $this->filter[ (($key == 'FROM') ? '>=' : '<=') .'PROPERTY_' . $field['NAME'] ] = $i;
                     }
                 }

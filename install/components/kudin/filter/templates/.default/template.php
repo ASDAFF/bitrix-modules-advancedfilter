@@ -4,23 +4,22 @@
         switch ($filter['SOURCE']) {
             case 'PROPERTY': ?>
 
-
+ 
             <?  
             break;
             case 'SECTIONS': ?>
     
-    
-    
+ 
             <?       
             break;
-            case 'HIBLOCK': ?>
-
-
-
-
-            <?
+            default : 
+                $APPLICATION->IncludeComponent("kudin:filter.field",
+                                               $filter['SOURCE'], 
+                                               array("FILTER" => $filter),
+                                               null,
+                                               array("HIDE_ICONS" => "Y")); 
             break;
-        } // switch ($filter['SOURCE']) { 
-     } // foreach ($arResult['FILTERS'] as $filter) { 
+        }
+     }
  ?>  
 </form>
