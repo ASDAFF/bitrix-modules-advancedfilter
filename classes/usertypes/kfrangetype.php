@@ -23,6 +23,9 @@ class KFRangeType extends kfiltertyperange {
                 $field[$key] = array();
                 $field[$key]['START'] = $tmp[0];
                 $field[$key]['END'] = $tmp[1];  
+            } 
+            if(!$field['DONT_SELECT_MAX_TO'] && $key == 'TO' && !$_REQUEST[$field['NAME'] . '_' . $key]) {
+                $_REQUEST[$field['NAME'] . '_' . $key] = $field[$key]['END'];
             }
             for ($i = $field[$key]['START']; $i <= $field[$key]['END']; $i++) {                
                 $tmparr = array('ID' => $i, 
@@ -30,7 +33,7 @@ class KFRangeType extends kfiltertyperange {
                 if($_REQUEST[$field['NAME'] . '_' . $key] == $i){
                     $tmparr['SELECTED'] = 'Y';
                     if(!$this->filter['PROPERTY_' . $field['NAME']]) {
-                        $this->filter[ (($key == 'FROM') ? '>=' : '<=') .'PROPERTY_' . $field['NAME'] ] = $i;
+                        $this->filter[ (($key == 'FROM') ? '>=' : '<=') . 'PROPERTY_' . $field['NAME'] ] = $i;
                     }
                 }
                 $field['VARIANTS'][$key][] = $tmparr;

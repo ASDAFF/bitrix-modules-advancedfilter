@@ -202,7 +202,7 @@ class KFilter {
            }
         }
     }
-    
+            
     private function addVariants(&$field) {
         switch ($field['SOURCE']) {
             case 'SECTIONS': 
@@ -214,7 +214,7 @@ class KFilter {
                     case 'L':
                         $this->addPropertyEnumVariants($field);
                         break; 
-                    case 'S':
+                    case 'S':   
                         switch ($field['PROPERTY']["USER_TYPE"]) {
                             case 'directory':
                                 $this->addHIblockVariants($field);
@@ -254,8 +254,8 @@ class KFilter {
                     $filters = $this->objectsArr[$name]->getFilter(); 
                     break;
             } 
-            if($filters){
-                $filter = array_merge($filters, $filter);
+            if($filters) { 
+                $filter = array_merge($filter, $filters);
             }
         }
         return $filter;
