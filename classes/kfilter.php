@@ -4,7 +4,7 @@ class KFilter {
 
     private $fields;
     private $iblock_id;
-    private $props = array(); 
+    private $props = array();
     
     private static $config = array('CACHE_TIME'                 => 3600000,
                                    'CACHE_DIR'                  => '/kfilter',
@@ -12,13 +12,13 @@ class KFilter {
                                    'MAX_SECTIONS_DEPTH_LEVEL'   => 5, 
                                    'HIBLOCK_DEFAULT_NAME_FIELD' => 'UF_NAME', 
                                    'HIBLOCK_DEFAULT_ID_FIELD'   => 'UF_XML_ID'); 
-
+    
     private $filterTypes = array(  'RANGE'           => 'KFRangeType',    
                                    'TEXT_RANGE'      => 'KFTextRangeType',
                                    'SETTED_PROPERTY' => 'KFSettedProperty'); 
-        
+    
     private $objectsArr = array(); 
-    private $filters = array();
+    private $filters = array();  
 
     private $obCache;
 
@@ -88,10 +88,9 @@ class KFilter {
         return false;
     }
 
-    function Add($name, $arr) { 
-        if ($name = trim($name)) { 
-            $arr['NAME'] = $name; 
-            if($this->validateSourceField($arr)){
+    function Add($name, $arr) {  
+        if (($arr['NAME'] = $name) && !isset($this->fields[$name])) { 
+            if($this->validateSourceField($arr)) {
                 $this->addVariants($arr);
                 $this->fields[$arr['NAME']] = $arr;
             }
@@ -121,7 +120,7 @@ class KFilter {
            $this->obCache->EndDataCache($field['VARIANTS']);
         }
         foreach($field['VARIANTS'] as &$section) {
-           if($_REQUEST[$field['NAME']] == $section['ID']){
+           if($_REQUEST[$field['NAME']] == $section['ID']) {
                $section['SELECTED'] = 'Y';
                $this->filters[$field['NAME']]['SECTION_ID'] = $section['ID'];
                break;
@@ -169,10 +168,8 @@ class KFilter {
     }
     
     private function addHIblockVariants(&$field) { 
-        if(!$field['NAME_FIELD']) 
-            $field['NAME_FIELD'] = self::$config['HIBLOCK_DEFAULT_NAME_FIELD']; 
-        if(!$field['ID_FIELD']) 
-            $field['ID_FIELD'] = self::$config['HIBLOCK_DEFAULT_ID_FIELD'];
+        $field['NAME_FIELD'] = isset($field['NAME_FIELD']) ? $field['NAME_FIELD'] : self::$config['HIBLOCK_DEFAULT_NAME_FIELD'];
+        $field['ID_FIELD'] = isset($field['ID_FIELD']) ? $field['ID_FIELD'] : self::$config['HIBLOCK_DEFAULT_ID_FIELD'];
         if($this->obCache->InitCache(self::$config['CACHE_TIME'], 
                                      md5($this->iblock_id . __METHOD__ . $field['ID']),
                                      self::$config['CACHE_DIR'])) {
@@ -243,11 +240,14 @@ class KFilter {
     }
 
     function GetFilter() {
-        $filter = array('IBLOCK_ID' => $this->iblock_id);
+        $filter = array('IBLOCK_ID' => $this->iblock_id); 
         foreach ($this->fields as $name => $field) {
+            if(!$field['NOT_EXCLUDE']) {
+                $excludedProperties[] = $field['NAME'];
+            }
             switch ($field['SOURCE']) {
                 case 'SECTIONS':
-                case 'PROPERTY':
+                case 'PROPERTY': 
                     $filters = $this->filters[$name];
                     break; 
                 default: 
@@ -257,6 +257,64 @@ class KFilter {
             if($filters) { 
                 $filter = array_merge($filter, $filters);
             }
+        }  
+        if(count($excludedProperties)) {
+            foreach ($excludedProperties as $name) {
+                $selectForExclude = $filterExcl = false;
+                switch ($this->fields[$name]['SOURCE']) {
+                    case 'SECTIONS': 
+                        $filterExcl = $this->filters[$name]; 
+                        $selectForExclude = 'IBLOCK_SECTION_ID';
+                        break;
+                    case 'PROPERTY':  
+                        $filterExcl = $this->filters[$name]; 
+                        $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE']; 
+                        break; 
+                    default: 
+                        $filterExcl = $this->objectsArr[$name]->getFilter(); 
+                        $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']; 
+                        break;
+                }
+                if($filterExcl) {
+                    $selectForExclude = (array) $selectForExclude;
+                    $selectForExclude[] = 'ID'; 
+                    $curFilter = array_diff_key($filter, $filterExcl);
+                    $curFilter["INCLUDE_SUBSECTIONS"] = 'Y';  
+                    if($this->obCache->InitCache(self::$config['CACHE_TIME'], 
+                                                 md5(__METHOD__ . serialize($curFilter) . serialize($selectForExclude)),
+                                                 self::$config['CACHE_DIR'])) {
+                        $arrElements = $this->obCache->GetVars(); 
+                    } elseif($this->obCache->StartDataCache()) {
+                        CModule::IncludeModule('iblock');
+                        $rs = CIBlockElement::GetList(array(), $curFilter, false, false, $selectForExclude); 
+                        while($ar = $rs->Fetch()) {
+                            $arrElements[] = $ar;
+                        }
+                        $this->obCache->EndDataCache($arrElements);
+                    }
+                    foreach($arrElements as $element){
+                        switch ($this->fields[$name]['SOURCE']) {
+                            case 'SECTIONS':
+                            case 'PROPERTY': 
+                                break; 
+                            default: 
+                                $this->objectsArr[$name]->addExcludedResult($element); 
+                                break;
+                        }
+                    }
+                    switch ($this->fields[$name]['SOURCE']) {
+                        case 'SECTIONS':
+                        case 'PROPERTY': 
+                            break; 
+                        default:  
+                            $this->objectsArr[$name]->Exclude($this->fields[$name]); 
+                            break;
+                    }
+                }
+            }
+
+                                
+            
         }
         return $filter;
     }

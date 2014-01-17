@@ -1,24 +1,44 @@
 <?php
 
 abstract class kfiltertype {
-     
+
     protected $filter = array();
-     
-    /* первая проверка при добавлении поля */
-    public function validate(&$field){ }    
-    
-    /* Добавляет перечисляемые варианты в $field['VARIANTS'], выделяет выбраные значения, формирует $this->filter */
-    public function addVariants(&$field){ }   
+    protected $arrElements = array();
+    protected $propertyName = '';
  
-    public function getFilter(){
-        return $this->filter;
+    /* первая проверка при добавлении поля, тут же 
+     * закидываем $field['PROPERTY'] в $this->propertyName если 
+     * хотим использовать отсекание лишних значений свойств... */
+    
+    public function validate(&$field) {
+        $this->propertyName = $field['PROPERTY'];
+    }    
+
+    /* Добавляет перечисляемые варианты в $field['VARIANTS'], 
+     * выделяет выбраные значения, формирует $this->filter */
+    
+    public function addVariants(&$field) { }   
+
+    /* закидываем в $this->arrElements только то что понадобится
+     * для отсекания в последствии лишних значений свойств */
+    public function addExcludedResult($arr) {
+        $this->arrElements[] = $arr;
     }
 
+    /* Удалит значения которые не встречаются в $this->arrElements */
+    
+    public function Exclude($field) { }
+
+    public function getFilter() {
+        return $this->filter;
+    }
+    
 }
 
 abstract class kfiltertyperange extends kfiltertype {
     
     public function validate(&$field) {
+        parent::validate($field);
         $_REQUEST[$field['NAME'] . '_FROM'] = intval($_REQUEST[$field['NAME'] . '_FROM']);
         $_REQUEST[$field['NAME'] . '_TO'] = intval($_REQUEST[$field['NAME'] . '_TO']); 
     }

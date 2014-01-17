@@ -7,7 +7,7 @@ class KFRangeType extends kfiltertyperange {
     
     private static $config = array('RANGE_SEPARATOR' => '-');
 
-    function addVariants(&$field) {  
+    function addVariants(&$field) {
         if($_REQUEST[$field['NAME'] . '_FROM'] || $_REQUEST[$field['NAME'] . '_TO']) {
             $this->checkToFromWasLess($field); 
             if($_REQUEST[$field['NAME'] . '_FROM'] == $_REQUEST[$field['NAME'] . '_TO']) { 
@@ -38,6 +38,21 @@ class KFRangeType extends kfiltertyperange {
                 }
                 $field['VARIANTS'][$key][] = $tmparr;
             } 
+        }
+    }
+
+    function addExcludedResult($arr) {
+         $this->arrElements[] = $arr["PROPERTY_" . $this->propertyName . "_VALUE"];
+    }
+
+    function Exclude(&$field) {
+        $vals = array_unique($this->arrElements); 
+        foreach (array('FROM', 'TO') as $key) {
+            foreach ($field['VARIANTS'][$key] as $k => $arr) {
+                if(!in_array($arr['ID'], $vals)) {
+                    unset($field['VARIANTS'][$key][$k]);
+                }
+            }
         }
     }
 
