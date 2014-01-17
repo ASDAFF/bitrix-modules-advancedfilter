@@ -66,11 +66,11 @@ class KFilter {
         $field['SOURCE'] = trim(strtoupper($field['SOURCE']));
         $field['PROPERTY'] = $field['PROPERTY'] ? $field['PROPERTY'] : $field['NAME']; 
         if (!$field['SOURCE']) {
-            if(isset($this->props[$field['PROPERTY']])){
+            if(isset($this->props[$field['PROPERTY']])) {
                 $field['SOURCE'] = 'PROPERTY';
                 return true;                
             } 
-        } elseif($field['SOURCE'] == 'PROPERTY' && !isset($this->props[$field['PROPERTY']])){
+        } elseif($field['SOURCE'] == 'PROPERTY' && !isset($this->props[$field['PROPERTY']])) {
             return false;
         }
         for($i = 1; $i <= self::$config['MAX_SECTIONS_DEPTH_LEVEL']; $i++) { 
@@ -105,7 +105,7 @@ class KFilter {
             $field['VARIANTS'] = $this->obCache->GetVars(); 
         } elseif($this->obCache->StartDataCache()) {
             $arSelect = array('ID', 'NAME');
-            if($field['DEPTH_LEVEL'] > 1){
+            if($field['DEPTH_LEVEL'] > 1) {
                 $arSelect[] = 'IBLOCK_SECTION_ID';
             }
             $db_list = CIBlockSection::GetList(array('SECTION'=> "ASC", "SORT" => "ASC", "NAME" => "ASC"), 
@@ -191,8 +191,8 @@ class KFilter {
             }   
             $this->obCache->EndDataCache($field['VARIANTS']);
         }
-        foreach($field['VARIANTS'] as &$variant){
-            if($_REQUEST[$field['NAME']] == $variant['ID']){
+        foreach($field['VARIANTS'] as &$variant) {
+            if($_REQUEST[$field['NAME']] == $variant['ID']) {
                 $variant['SELECTED'] = 'Y';
                 $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $variant['ID'];
                 break;
@@ -224,7 +224,7 @@ class KFilter {
                 }
                 break;  
             default:
-                if(is_object($this->objectsArr[$field['NAME']])){
+                if(is_object($this->objectsArr[$field['NAME']])) {
                     $this->objectsArr[$field['NAME']]->addVariants($field);
                 } 
                 break;
@@ -310,11 +310,11 @@ class KFilter {
                         }
                         $this->obCache->EndDataCache($arrElements);
                     }
-                    foreach($arrElements as $element){
+                    foreach($arrElements as $element) {
                         switch ($this->fields[$name]['SOURCE']) {
                             case 'SECTIONS':
                                 break; 
-                            case 'PROPERTY': if($name=='TIP_KUZOVA') prent($element);
+                            case 'PROPERTY':
                                 $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_ENUM_ID"]; 
                                 $this->fields[$name]['ELEMENTS_FOR_EXCLUDE'][] = $val;
                                 break; 
