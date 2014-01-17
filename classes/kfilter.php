@@ -192,11 +192,11 @@ class KFilter {
             $this->obCache->EndDataCache($field['VARIANTS']);
         }
         foreach($field['VARIANTS'] as &$variant){
-           if($_REQUEST[$field['NAME']] == $variant['ID']){
-               $variant['SELECTED'] = 'Y';
-               $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $variant['ID'];
-               break;
-           }
+            if($_REQUEST[$field['NAME']] == $variant['ID']){
+                $variant['SELECTED'] = 'Y';
+                $this->filters[$field['NAME']]['PROPERTY_' . $field['PROPERTY']['CODE']] = $variant['ID'];
+                break;
+            }
         }
     }
             
@@ -257,7 +257,7 @@ class KFilter {
             if($filters) { 
                 $filter = array_merge($filter, $filters);
             }
-        }  
+        } 
         if(count($excludedProperties)) {
             foreach ($excludedProperties as $name) {
                 $selectForExclude = $filterExcl = false;
@@ -266,15 +266,33 @@ class KFilter {
                         $filterExcl = $this->filters[$name]; 
                         $selectForExclude = 'IBLOCK_SECTION_ID';
                         break;
-                    case 'PROPERTY':  
-                        $filterExcl = $this->filters[$name]; 
-                        $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE']; 
+                    case 'PROPERTY':
+                        switch ($this->fields[$name]['PROPERTY']["PROPERTY_TYPE"]) {
+                            case 'L':
+                                if($this->filters[$name]) {
+                                    $filterExcl = $this->filters[$name];
+                                } else {
+                                    $filterExcl = array('!PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE'] => false);
+                                } 
+                                $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE'];   
+                                break; 
+                            case 'S':   
+                                switch ($field['PROPERTY']["USER_TYPE"]) {
+                                    case 'directory':
+
+                                        break;
+                                    default: 
+
+                                        break;
+                                }
+                                break;
+                        }
                         break; 
                     default: 
                         $filterExcl = $this->objectsArr[$name]->getFilter(); 
                         $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']; 
                         break;
-                }
+                }  
                 if($filterExcl) {
                     $selectForExclude = (array) $selectForExclude;
                     $selectForExclude[] = 'ID'; 
@@ -295,28 +313,40 @@ class KFilter {
                     foreach($arrElements as $element){
                         switch ($this->fields[$name]['SOURCE']) {
                             case 'SECTIONS':
-                            case 'PROPERTY': 
+                                break; 
+                            case 'PROPERTY': if($name=='TIP_KUZOVA') prent($element);
+                                $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_ENUM_ID"]; 
+                                $this->fields[$name]['ELEMENTS_FOR_EXCLUDE'][] = $val;
                                 break; 
                             default: 
                                 $this->objectsArr[$name]->addExcludedResult($element); 
                                 break;
-                        }
+                        } 
                     }
-                    switch ($this->fields[$name]['SOURCE']) {
-                        case 'SECTIONS':
-                        case 'PROPERTY': 
-                            break; 
-                        default:  
-                            $this->objectsArr[$name]->Exclude($this->fields[$name]); 
-                            break;
-                    }
+                    $this->Exclude($name); 
                 }
-            }
-
-                                
-            
+            } 
         }
         return $filter;
+    }
+    
+    private function Exclude($name) { 
+        switch ($this->fields[$name]['SOURCE']) {
+            case 'SECTIONS':
+                break;
+            case 'PROPERTY':  
+                $arr = array_unique($this->fields[$name]['ELEMENTS_FOR_EXCLUDE']);
+                foreach($this->fields[$name]["VARIANTS"] as $k => $variant) {
+                    if(!in_array($variant['ID'], $arr)) {
+                        unset($this->fields[$name]["VARIANTS"][$k]);
+                    }
+                } 
+                unset($this->fields[$name]['ELEMENTS_FOR_EXCLUDE']);
+                break; 
+            default:  
+                $this->objectsArr[$name]->Exclude($this->fields[$name]); 
+                break;
+        } 
     }
 
 }
