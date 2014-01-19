@@ -58,8 +58,9 @@ class KFRangeType extends kfiltertyperange {
                 }
                 if(!$max && $key == 'TO' && !$field['DONT_SELECT_MAX_TO'] && $arr['SELECTED'] == 'Y') { 
                     $max = $k; 
+                } else {
+                    $lastId = $k;
                 }
-                $lastId = $k;
             }
         }
         if(!$max) {
