@@ -297,7 +297,7 @@ class KFilter {
                     $selectForExclude = (array) $selectForExclude;
                     $selectForExclude[] = 'ID'; 
                     $curFilter = array_diff_key($filter, $filterExcl);
-                    $curFilter["INCLUDE_SUBSECTIONS"] = 'Y';  
+                    $curFilter["INCLUDE_SUBSECTIONS"] = 'Y';
                     if($this->obCache->InitCache(self::$config['CACHE_TIME'], 
                                                  md5(__METHOD__ . serialize($curFilter) . serialize($selectForExclude)),
                                                  self::$config['CACHE_DIR'])) {
@@ -329,7 +329,7 @@ class KFilter {
         }
         return $filter;
     }
-    
+
     private function Exclude($name) { 
         switch ($this->fields[$name]['SOURCE']) {
             case 'SECTIONS':

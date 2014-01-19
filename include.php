@@ -1,7 +1,6 @@
 <?php
 CModule::AddAutoloadClasses("advancedfilter",  
                             array( "KFilter"         => "classes/kfilter.php", 
-                                   "KFilterList"     => "classes/kfilterlist.php", 
                                    "kfiltertype"     => "classes/usertypes/kfiltertype.php",
                                    "kfiltertyperange"=> "classes/usertypes/kfiltertype.php",
                                    "KFRangeType"     => "classes/usertypes/kfrangetype.php",
