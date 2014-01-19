@@ -47,13 +47,24 @@ class KFRangeType extends kfiltertyperange {
 
     function Exclude(&$field) {
         $vals = array_unique($this->arrElements); 
+        if($vals == array(NULL) || !$vals)
+            return; 
+        $max = false; 
         foreach (array('FROM', 'TO') as $key) {
             foreach ($field['VARIANTS'][$key] as $k => $arr) {
                 if(!in_array($arr['ID'], $vals)) {
                     unset($field['VARIANTS'][$key][$k]);
+                    continue;
                 }
+                if(!$max && $key == 'TO' && !$field['DONT_SELECT_MAX_TO'] && $arr['SELECTED'] == 'Y') { 
+                    $max = $k; 
+                }
+                $lastId = $k;
             }
         }
+        if(!$max) {
+            $field['VARIANTS']['TO'][$lastId]['SELECTED'] = 'Y';
+        }
     }
-
+    
 } 
