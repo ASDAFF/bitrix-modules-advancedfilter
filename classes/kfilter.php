@@ -63,6 +63,9 @@ class KFilter {
     }
   
     private function validateSourceField(&$field) {
+        if(!$field['EXCLUDE']) {
+            $field['EXCLUDE'] = 'Y';
+        }
         $field['SOURCE'] = trim(strtoupper($field['SOURCE']));
         $field['PROPERTY'] = $field['PROPERTY'] ? $field['PROPERTY'] : $field['NAME']; 
         if (!$field['SOURCE']) {
@@ -254,7 +257,7 @@ class KFilter {
                     $exclude = $this->objectsArr[$name]->isExcluded();
                     break;
             }
-            if(!$field['NOT_EXCLUDE'] && $exclude) {
+            if($field['EXCLUDE'] != 'N' && $exclude) {
                 $excludedProperties[] = $field['NAME'];
             }
             if($filters) { 
@@ -328,7 +331,7 @@ class KFilter {
         return $filter;
     }
 
-    private function Exclude($name) { 
+    private function Exclude($name) {  
         switch ($this->fields[$name]['SOURCE']) {
             case 'SECTIONS':
                 break;
@@ -336,9 +339,18 @@ class KFilter {
                 $arr = array_unique($this->fields[$name]['ELEMENTS_FOR_EXCLUDE']);
                 foreach($this->fields[$name]["VARIANTS"] as $k => $variant) {
                     if(!in_array($variant['ID'], $arr)) {
-                        unset($this->fields[$name]["VARIANTS"][$k]);
+                        switch ($this->fields[$name]['EXCLUDE']) {
+                            case 'Y':
+                                unset($this->fields[$name]["VARIANTS"][$k]); 
+                                break; 
+                            case 'D':
+                                $this->fields[$name]["VARIANTS"][$k]['DISABLED'] = 'Y';
+                                break;
+                            default:
+                                break;
+                        } 
                     }
-                } 
+                }
                 unset($this->fields[$name]['ELEMENTS_FOR_EXCLUDE']);
                 break; 
             default:  
