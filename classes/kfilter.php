@@ -268,36 +268,22 @@ class KFilter {
                         $filterExcl = $this->filters[$name]; 
                         $selectForExclude = 'IBLOCK_SECTION_ID';
                         break;
-                    case 'PROPERTY':
-                        switch ($this->fields[$name]['PROPERTY']["PROPERTY_TYPE"]) {
-                            case 'L':
-                                if($this->filters[$name]) {
-                                    $filterExcl = $this->filters[$name];
-                                } else {
-                                    $filterExcl = array('!PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE'] => false);
-                                } 
-                                $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE'];   
-                                break; 
-                            case 'S':   
-                                switch ($field['PROPERTY']["USER_TYPE"]) {
-                                    case 'directory':
-
-                                        break;
-                                    default: 
-
-                                        break;
-                                }
-                                break;
-                        }
+                    case 'PROPERTY': 
+                        if($this->filters[$name]) {
+                            $filterExcl = $this->filters[$name];
+                        } else {
+                            $filterExcl = array('!PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE'] => false);
+                        } 
+                        $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']['CODE']; 
                         break; 
                     default: 
                         $filterExcl = $this->objectsArr[$name]->getFilter(); 
                         $selectForExclude = 'PROPERTY_' . $this->fields[$name]['PROPERTY']; 
                         break;
-                }  
-                if($filterExcl) {
+                }   
+                if($filterExcl) { 
                     $selectForExclude = (array) $selectForExclude;
-                    $selectForExclude[] = 'ID'; 
+                    $selectForExclude[] = 'ID';  
                     $curFilter = array_diff_key($filter, $filterExcl);
                     $curFilter["INCLUDE_SUBSECTIONS"] = 'Y';
                     if($this->obCache->InitCache(self::$config['CACHE_TIME'], 
@@ -309,21 +295,30 @@ class KFilter {
                         $rs = CIBlockElement::GetList(array(), $curFilter, false, false, $selectForExclude); 
                         while($ar = $rs->Fetch()) {
                             $arrElements[] = $ar;
-                        }
+                        } 
                         $this->obCache->EndDataCache($arrElements);
                     }
                     foreach($arrElements as $element) {
                         switch ($this->fields[$name]['SOURCE']) {
                             case 'SECTIONS':
                                 break; 
-                            case 'PROPERTY':
-                                $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_ENUM_ID"]; 
-                                $this->fields[$name]['ELEMENTS_FOR_EXCLUDE'][] = $val;
+                            case 'PROPERTY': 
+                                switch ($this->fields[$name]['PROPERTY']["PROPERTY_TYPE"]) {
+                                    case 'L':
+                                        $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_ENUM_ID"];
+                                        break; 
+                                    case 'S':
+                                        $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_VALUE"];
+                                        break;
+                                    default:
+                                        break;
+                                }
                                 break; 
                             default: 
                                 $this->objectsArr[$name]->addExcludedResult($element); 
                                 break;
-                        } 
+                        }
+                        $this->fields[$name]['ELEMENTS_FOR_EXCLUDE'][] = $val;
                     }
                     $this->Exclude($name); 
                 }
