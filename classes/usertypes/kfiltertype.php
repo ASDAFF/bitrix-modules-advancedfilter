@@ -5,16 +5,20 @@ abstract class kfiltertype {
     protected $filter = array();
     protected $arrElements = array();
     protected $propertyName = '';
-    
+
     /* первая проверка при добавлении поля, тут же 
      * закидываем $field['PROPERTY'] в $this->propertyName если 
      * хотим использовать отсекание лишних значений свойств... */
-    
-    public function validate(&$field) {
-        $this->propertyName = $field['PROPERTY'];
-    }    
+ 
+    public function validate(&$field) { }    
+ 
+    /* Вызывается сразу после валидации для установки $this->propertyName 
+     * ( необходим для $this->addExcludedResult() ) */
+    public final function setPropertyName($name) {
+        $this->propertyName = $name;
+    }
 
-    public function getFilter() {
+    public function getFilter() { 
         return $this->filter;
     }
     

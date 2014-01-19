@@ -6,13 +6,13 @@ class KFilter {
     private $iblock_id;
     private $props = array();
     
-    private static $config = array('CACHE_TIME'                 => 3600000,
+    private static $config = array('CACHE_TIME'                 => 7200000,
                                    'CACHE_DIR'                  => '/kfilter',
                                    'CACHE_TAG'                  => 'kfilter',
                                    'MAX_SECTIONS_DEPTH_LEVEL'   => 5, 
                                    'HIBLOCK_DEFAULT_NAME_FIELD' => 'UF_NAME', 
                                    'HIBLOCK_DEFAULT_ID_FIELD'   => 'UF_XML_ID'); 
-    
+
     private $filterTypes = array(  'RANGE'           => 'KFRangeType',    
                                    'TEXT_RANGE'      => 'KFTextRangeType',
                                    'SETTED_PROPERTY' => 'KFSettedProperty'); 
@@ -83,6 +83,7 @@ class KFilter {
         if($this->filterTypes[$field['SOURCE']]) {
             $this->objectsArr[$field['NAME']] = new $this->filterTypes[$field['SOURCE']]($this->iblock_id);
             $this->objectsArr[$field['NAME']]->validate($field);
+            $this->objectsArr[$field['NAME']]->setPropertyName($field['PROPERTY']); 
             return true;
         } 
         return false;
@@ -289,7 +290,7 @@ class KFilter {
                     if($this->obCache->InitCache(self::$config['CACHE_TIME'], 
                                                  md5(__METHOD__ . serialize($curFilter) . serialize($selectForExclude)),
                                                  self::$config['CACHE_DIR'])) {
-                        $arrElements = $this->obCache->GetVars(); 
+                        $arrElements = $this->obCache->GetVars();
                     } elseif($this->obCache->StartDataCache()) {
                         CModule::IncludeModule('iblock');
                         $rs = CIBlockElement::GetList(array(), $curFilter, false, false, $selectForExclude); 
