@@ -7,6 +7,10 @@ class KFRangeType extends kfiltertyperange {
     
     private static $config = array('RANGE_SEPARATOR' => '-');
 
+    public function isExcluded() {
+        return true;
+    }
+            
     function addVariants(&$field) {
         if($_REQUEST[$field['NAME'] . '_FROM'] || $_REQUEST[$field['NAME'] . '_TO']) {
             $this->checkToFromWasLess($field); 

@@ -242,22 +242,24 @@ class KFilter {
     function GetFilter() {
         $filter = array('IBLOCK_ID' => $this->iblock_id); 
         foreach ($this->fields as $name => $field) {
-            if(!$field['NOT_EXCLUDE']) {
-                $excludedProperties[] = $field['NAME'];
-            }
+            $exclude = true;
             switch ($field['SOURCE']) {
                 case 'SECTIONS':
                 case 'PROPERTY': 
                     $filters = $this->filters[$name];
                     break; 
                 default: 
-                    $filters = $this->objectsArr[$name]->getFilter(); 
+                    $filters = $this->objectsArr[$name]->getFilter();
+                    $exclude = $this->objectsArr[$name]->isExcluded();
                     break;
-            } 
+            }
+            if(!$field['NOT_EXCLUDE'] && $exclude) {
+                $excludedProperties[] = $field['NAME'];
+            }
             if($filters) { 
                 $filter = array_merge($filter, $filters);
             }
-        } 
+        } prent($excludedProperties);
         if(count($excludedProperties)) {
             foreach ($excludedProperties as $name) {
                 $selectForExclude = $filterExcl = false;
