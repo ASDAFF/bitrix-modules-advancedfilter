@@ -32,7 +32,7 @@ abstract class kfiltertype {
     /* Добавляет перечисляемые варианты в $field['VARIANTS'], 
      * выделяет выбраные значения, формирует $this->filter */
     
-    public function addVariants(&$field) { }   
+    public function addVariants(&$field, $params) { }   
 
     /* закидываем в $this->arrElements только то что понадобится
      * для отсекания в последствии лишних значений свойств */
@@ -50,7 +50,6 @@ abstract class kfiltertype {
 abstract class kfiltertyperange extends kfiltertype {
     
     public function validate(&$field) {
-        parent::validate($field);
         $_REQUEST[$field['NAME'] . '_FROM'] = intval($_REQUEST[$field['NAME'] . '_FROM']);
         $_REQUEST[$field['NAME'] . '_TO'] = intval($_REQUEST[$field['NAME'] . '_TO']); 
     }

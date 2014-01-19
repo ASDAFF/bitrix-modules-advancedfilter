@@ -1,25 +1,22 @@
 <?php
 
 class KFilter {
-
+    
     private $fields;
     private $iblock_id;
     private $props = array();
-    
-    private static $config = array('CACHE_TIME'                 => 7200000,
-                                   'CACHE_DIR'                  => '/kfilter',
-                                   'CACHE_TAG'                  => 'kfilter',
-                                   'MAX_SECTIONS_DEPTH_LEVEL'   => 5, 
-                                   'HIBLOCK_DEFAULT_NAME_FIELD' => 'UF_NAME', 
-                                   'HIBLOCK_DEFAULT_ID_FIELD'   => 'UF_XML_ID'); 
-
-    private $filterTypes = array(  'RANGE'           => 'KFRangeType',    
-                                   'TEXT_RANGE'      => 'KFTextRangeType',
-                                   'SETTED_PROPERTY' => 'KFSettedProperty'); 
-    
+    public static $config = array('CACHE_TIME'                 => 7200000,
+                                  'CACHE_DIR'                  => '/kfilter',
+                                  'CACHE_TAG'                  => 'kfilter',
+                                  'MAX_SECTIONS_DEPTH_LEVEL'   => 5, 
+                                  'HIBLOCK_DEFAULT_NAME_FIELD' => 'UF_NAME', 
+                                  'HIBLOCK_DEFAULT_ID_FIELD'   => 'UF_XML_ID'); 
+    private $filterTypes = array( 'RANGE'                      => 'KFRangeType',    
+                                  'TEXT_RANGE'                 => 'KFTextRangeType',
+                                  'SETTED_PROPERTY'            => 'KFSettedProperty',
+                                  'SECTION_FROM_LINK_ELEMENT'  => 'KFSectByLinkElement'); 
     private $objectsArr = array(); 
     private $filters = array();  
-
     private $obCache;
 
     function __construct($iblock_id) {
@@ -47,8 +44,11 @@ class KFilter {
                                  'PROPERTY_NAME' => $prop_fields['NAME'],
                                  'PROPERTY_TYPE' => $prop_fields['PROPERTY_TYPE'],
                                  'CODE' => $prop_fields['CODE']);
-                if($prop_fields["USER_TYPE"])
-                    $propArr['USER_TYPE'] = $prop_fields["USER_TYPE"];
+                foreach(array('LINK_IBLOCK_ID', 'USER_TYPE') as $code) {
+                    if(isset($prop_fields[$code])) {
+                        $propArr[$code] = $prop_fields[$code];
+                    }
+                } 
                 if($prop_fields["USER_TYPE_SETTINGS"]["TABLE_NAME"])
                     $propArr['TABLE_NAME'] = $prop_fields["USER_TYPE_SETTINGS"]["TABLE_NAME"];
                 $this->props[$prop_fields["CODE"]] = $propArr;
@@ -56,7 +56,7 @@ class KFilter {
             $this->obCache->EndDataCache($this->props);  
         }
     }
-
+    
     static function clearCache() {
         global $CACHE_MANAGER;
         $CACHE_MANAGER->ClearByTag(self::$config['CACHE_TAG']);
@@ -223,10 +223,10 @@ class KFilter {
                         }
                         break;
                 }
-                break;  
+                break;
             default:
                 if(is_object($this->objectsArr[$field['NAME']])) {
-                    $this->objectsArr[$field['NAME']]->addVariants($field);
+                    $this->objectsArr[$field['NAME']]->addVariants($field, $this->props[$field["PROPERTY"]]);
                 } 
                 break;
         }
