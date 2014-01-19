@@ -259,7 +259,7 @@ class KFilter {
             if($filters) { 
                 $filter = array_merge($filter, $filters);
             }
-        } prent($excludedProperties);
+        }
         if(count($excludedProperties)) {
             foreach ($excludedProperties as $name) {
                 $selectForExclude = $filterExcl = false;

@@ -39,7 +39,7 @@ abstract class kfiltertype {
 
     /* Удалит значения которые не встречаются в $this->arrElements */
     
-    public function Exclude($field) { }
+    public function Exclude(&$field) { }
 
 }
 
