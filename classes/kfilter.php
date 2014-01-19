@@ -327,7 +327,7 @@ class KFilter {
                     }
                     $this->Exclude($name); 
                 }
-            } 
+            }
         }
         return $filter;
     }
