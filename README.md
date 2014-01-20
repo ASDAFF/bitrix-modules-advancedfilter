@@ -6,7 +6,10 @@ advancedfilter
 <pre>cd site/bitrix/modules/ 
 git clone https://github.com/kudin/bitrix-modules-advancedfilter.git advancedfilter 
 </pre>
- 
+<p>Если сайт работает в кодировке windows-1251, то вам необходимо выполнить</p>
+<pre>cd advancedfilter 
+sh convert.sh
+</pre>
 ==== 
 
 <p>Класс KFilter предназначен для формирования фильтра.</p>
