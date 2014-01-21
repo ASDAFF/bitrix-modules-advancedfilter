@@ -23,7 +23,7 @@ class advancedfilter extends CModule {
         }
 
         $this->MODULE_NAME = 'Настраиваемый фильтр';
-        $this->MODULE_DESCRIPTION = 'Модуль предназначен для расширеной настройки филтьрации элементов на сайте';
+        $this->MODULE_DESCRIPTION = 'Модуль предназначен для расширеной настройки фильтрации элементов на сайте';
     }
 
     function DoInstall() {
