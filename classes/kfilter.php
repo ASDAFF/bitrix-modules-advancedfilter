@@ -237,6 +237,7 @@ class KFilter {
 
     function registerType($type, $class) {
         $this->filterTypes[$type] = $class;
+        return $this;
     }    
          
     function GetResult() { 
@@ -312,6 +313,7 @@ class KFilter {
                                         $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_ENUM_ID"];
                                         break; 
                                     case 'S':
+                                    case 'N':
                                         $val = $element["PROPERTY_" . $this->fields[$name]['PROPERTY']['CODE'] . "_VALUE"];
                                         break;
                                     default:
