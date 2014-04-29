@@ -19,7 +19,7 @@ class KFSectByLinkElement extends kfiltertype {
 
     public function addVariants(&$field, $params) {
         if(!$params["LINK_IBLOCK_ID"])
-            return;
+            return; 
         $cacheDir = KFilter::$config['CACHE_DIR'] . self::$cacheSubdir;
         $obCache = new CPHPCache;
         if($obCache->InitCache(KFilter::$config['CACHE_TIME'],
@@ -39,13 +39,23 @@ class KFSectByLinkElement extends kfiltertype {
             while ($arSect = $rsSect->GetNext()) {
                 $field['VARIANTS'][] = array('ID'   => $arSect['ID'], 
                                              'NAME' => $arSect['NAME']);
-            }
+            } 
             $obCache->EndDataCache($field['VARIANTS']); 
         }
         foreach($field['VARIANTS'] as &$section) {
             if($_REQUEST[$field['NAME']] == $section['ID']) {
-                $section['SELECTED'] = 'Y';
-                $this->filter['PROPERTY_' . $field['PROPERTY'] . '.IBLOCK_SECTION_ID'] = $section['ID'];
+                $section['SELECTED'] = 'Y';  
+                $res = CIBlockElement::GetList(Array(), 
+                                               Array("IBLOCK_ID"=>$params["LINK_IBLOCK_ID"], 
+                                                     "SECTION_ID" => $section['ID']),
+                                               false,
+                                               false, 
+                                               Array("ID", "IBLOCK_ID"));
+                $arr = array();
+                while($el = $res->GetNext()){ 
+                    $arr[] = $el['ID'];
+                }
+                $this->filter['PROPERTY_' . $field['PROPERTY']] = $arr;
                 break;
             }
         } 
